@@ -14,12 +14,16 @@ interface AppState {
     // UI flags
     isSidebarOpen: boolean
     toggleSidebar: () => void
+
+    // Search
+    searchQuery: string
+    setSearchQuery: (query: string) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
     // Plan info
     planInfo: {
-        tier: 'free',
+        tier: 'pro',
         messagesRemaining: 10,
         maxMessages: 10,
     },
@@ -28,4 +32,8 @@ export const useAppStore = create<AppState>((set) => ({
     // UI flags
     isSidebarOpen: true,
     toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+
+    // Search
+    searchQuery: '',
+    setSearchQuery: (query) => set({ searchQuery: query }),
 }))

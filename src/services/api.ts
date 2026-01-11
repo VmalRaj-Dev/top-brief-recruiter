@@ -16,4 +16,18 @@ export const api = {
         if (!response.ok) throw new Error('API request failed')
         return response.json()
     },
+
+    download: async (endpoint: string, filename: string) => {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`)
+        if (!response.ok) throw new Error('Download failed')
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+    },
 }

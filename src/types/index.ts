@@ -10,3 +10,12 @@ export interface User {
     email: string
     name: string
 }
+
+export interface Candidate {
+    id: string
+    name: string
+    avatar: string
+    position: string
+    experience: string
+    email: string
+}

@@ -1,3 +1,4 @@
+import React from 'react'
 import { ArrowUp } from "lucide-react"
 import micBlack from "../../assets/mic-black.svg"
 import { Button } from "@/components/atoms/Button"
@@ -22,7 +23,29 @@ import { Button } from "@/components/atoms/Button"
 //     )
 // }
 
-export function PromptInput() {
+import { useAppStore } from "@/store/useAppStore"
+
+export interface PromptInputProps {
+    isLoading?: boolean
+}
+
+export function PromptInput({ isLoading }: PromptInputProps) {
+    const [input, setInput] = React.useState("")
+    const setSearchQuery = useAppStore((state) => state.setSearchQuery)
+
+    const handleSearch = () => {
+        if (input.trim()) {
+            setSearchQuery(input)
+        }
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault()
+            handleSearch()
+        }
+    }
+
     return (
         <div className="w-full max-w-[920px] rounded-[14px] p-[3px] bg-gradient-to-b from-primary-600 to-primary-200">
             <div className="w-full h-full bg-primary-700 rounded-[11px] p-2">
@@ -32,6 +55,9 @@ export function PromptInput() {
                         <textarea
                             className="text-text-primary font-normal text-sm leading-normal min-h-[15px] resize-none outline-none border-none bg-transparent"
                             placeholder="An AI chatbot that automates candidate screening and hiring."
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
                         />
 
                         {/* Action Bar */}
@@ -73,6 +99,8 @@ export function PromptInput() {
                                 <Button
                                     size="icon"
                                     className="size-9 cursor-pointer rounded-full hover:opacity-90 transition-opacity border-none bg-primary-dark"
+                                    onClick={handleSearch}
+                                    disabled={isLoading || !input.trim()}
                                 >
                                     <ArrowUp className="size-6 stroke-white" strokeWidth={1.5} />
                                 </Button>
