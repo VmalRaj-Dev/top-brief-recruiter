@@ -1,16 +1,13 @@
+import { useState } from "react"
 import { Button } from "@/components/atoms/Button"
 import logo from "@/assets/logo.svg"
-import { candidatesService } from "@/services/candidates"
-import { Download } from "lucide-react"
+
+import { Upload } from "lucide-react"
+import { UploadModal } from "./UploadModal"
 
 export function Header() {
-    const handleImport = async () => {
-        try {
-            await candidatesService.importCandidates()
-        } catch (error) {
-            console.error("Failed to import candidates", error)
-        }
-    }
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
+
     return (
         <header className="sticky top-0 left-0 right-0 px-6 py-3 pt-6 flex justify-center items-center z-50 bg-background border-b border-gray-100">
             <div className="w-full max-w-[920px] flex justify-between items-center h-9">
@@ -32,10 +29,10 @@ export function Header() {
                         size="icon"
                         variant="ghost"
                         className="rounded-full hover:bg-gray-100"
-                        onClick={handleImport}
+                        onClick={() => setIsUploadModalOpen(true)}
                         title="Import Candidates"
                     >
-                        <Download className="w-5 h-5 text-text-primary" />
+                        <Upload className="w-5 h-5 text-text-primary" />
                     </Button>
 
                     {/* User Profile */}
@@ -47,6 +44,11 @@ export function Header() {
                     </div>
                 </div>
             </div>
+
+            <UploadModal
+                isOpen={isUploadModalOpen}
+                onClose={() => setIsUploadModalOpen(false)}
+            />
         </header>
     )
 }

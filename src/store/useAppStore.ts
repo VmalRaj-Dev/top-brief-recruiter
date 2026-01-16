@@ -3,7 +3,7 @@ import { create } from 'zustand'
 interface PlanInfo {
     tier: 'free' | 'pro' | 'enterprise'
     messagesRemaining: number
-    maxMessages: number
+    limit: number
 }
 
 interface AppState {
@@ -18,6 +18,12 @@ interface AppState {
     // Search
     searchQuery: string
     setSearchQuery: (query: string) => void
+
+    // Upload
+    uploadStatus: 'idle' | 'uploading' | 'success' | 'error'
+    uploadProgress: number
+    setUploadStatus: (status: 'idle' | 'uploading' | 'success' | 'error') => void
+    setUploadProgress: (progress: number) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -25,7 +31,7 @@ export const useAppStore = create<AppState>((set) => ({
     planInfo: {
         tier: 'pro',
         messagesRemaining: 10,
-        maxMessages: 10,
+        limit: 10,
     },
     setPlanInfo: (info) => set({ planInfo: info }),
 
@@ -36,4 +42,10 @@ export const useAppStore = create<AppState>((set) => ({
     // Search
     searchQuery: '',
     setSearchQuery: (query) => set({ searchQuery: query }),
+
+    // Upload
+    uploadStatus: 'idle',
+    uploadProgress: 0,
+    setUploadStatus: (status) => set({ uploadStatus: status }),
+    setUploadProgress: (progress) => set({ uploadProgress: progress }),
 }))

@@ -1,6 +1,5 @@
 import React from 'react'
 import { ArrowUp } from "lucide-react"
-import micBlack from "../../assets/mic-black.svg"
 import { Button } from "@/components/atoms/Button"
 
 // interface PromptActionButtonProps {
@@ -88,12 +87,12 @@ export function PromptInput({ isLoading }: PromptInputProps) {
                             {/* Control Buttons */}
                             <div className="flex items-center gap-4">
                                 {/* Microphone Button */}
-                                <Button
+                                {/* <Button
                                     size="icon"
                                     className="size-9 rounded-full cursor-pointer bg-transparent hover:bg-primary-700 hover:opacity-80 transition-opacity border-none"
                                 >
                                     <img src={micBlack} alt="Mic" className="size-6" />
-                                </Button>
+                                </Button> */}
 
                                 {/* Send Button */}
                                 <Button

@@ -12,10 +12,29 @@ export interface User {
 }
 
 export interface Candidate {
-    id: string
-    name: string
-    avatar: string
-    position: string
-    experience: string
     email: string
+    full_name: string
+    first_name: string
+    last_name: string
+    city: string
+    job_title: string
+    current_function: string
+    company: string
+    contact_info: {
+        email: string
+        phone: string
+    }
+    match_score: string
+    semantic_similarity: number
+    verified: boolean
+    category: string
+    open_to_offers: string
+    feedback: string
+    details: {
+        responsibilities: string
+        years_experience: string
+        experience: string
+        education: string
+        self_description: string
+    }
 }
