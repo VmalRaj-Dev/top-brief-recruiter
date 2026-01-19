@@ -10,7 +10,7 @@ export function Header() {
 
     return (
         <header className="sticky top-0 left-0 right-0 px-6 py-3 pt-6 flex justify-center items-center z-50 bg-background border-b border-gray-100">
-            <div className="w-full max-w-[920px] flex justify-between items-center h-9">
+            <div className="w-full max-w-[1120px] flex justify-between items-center h-9">
                 {/* Left: Topbrief Logo */}
                 {/* <div className="flex items-center gap-2 px-3 py-2 border border-stroke rounded-lg bg-primary-100"> */}
                 <img src={logo} alt="Topbrief" className="w-32 h-32 shrink-0" />

@@ -46,14 +46,14 @@ export function PromptInput({ isLoading }: PromptInputProps) {
     }
 
     return (
-        <div className="w-full max-w-[920px] rounded-[14px] p-[3px] bg-gradient-to-b from-primary-600 to-primary-200">
+        <div className="w-full max-w-[1120px] rounded-[14px] p-[3px] bg-gradient-to-b from-primary-600 to-primary-200">
             <div className="w-full h-full bg-primary-700 rounded-[11px] p-2">
                 <div className="flex flex-col">
                     <div className="flex flex-col gap-[32px] p-4 px-6 rounded-[11px] bg-white">
                         {/* Prompt Input Text */}
                         <textarea
                             className="text-text-primary font-normal text-sm leading-normal min-h-[15px] resize-none outline-none border-none bg-transparent"
-                            placeholder="An AI chatbot that automates candidate screening and hiring."
+                            placeholder="Een AI-chatbot die het screenen en aannemen van kandidaten automatiseert."
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={handleKeyDown}

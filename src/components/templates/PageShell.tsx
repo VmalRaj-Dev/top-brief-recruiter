@@ -1,5 +1,5 @@
 import { type ReactNode } from "react"
-import { Header } from "@/components/organisms/Header"
+// import { Header } from "@/components/organisms/Header"
 import { UploadProgressToast } from "@/components/molecules/UploadProgressToast"
 // import { LeftSidePanel } from "@/components/organisms/LeftSidePanel"
 
@@ -13,8 +13,8 @@ export function PageShell({ children }: PageShellProps) {
             <UploadProgressToast />
             {/* <LeftSidePanel /> */}
             <div className="flex-1 flex flex-col h-full min-w-0">
-                <Header />
                 <main className="flex-1 flex flex-col overflow-y-auto relative w-full">
+                    {/* <Header /> */}
                     {children}
                 </main>
             </div>

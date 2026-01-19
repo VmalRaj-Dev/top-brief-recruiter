@@ -1,6 +1,6 @@
 import chatIntroIcon from "@/assets/Group 8.svg"
 
-export function ChatIntro({ name = "Jackson" }) {
+export function ChatIntro() {
     return (
         <div className="flex flex-col items-center text-center gap-4 py-10">
 
@@ -13,11 +13,11 @@ export function ChatIntro({ name = "Jackson" }) {
 
             {/* TEXT */}
             <div className="space-y-1">
-                <h1 className="text-4xl text-foreground">
+                {/* <h1 className="text-4xl text-foreground">
                     Hello {name}!
-                </h1>
+                </h1> */}
                 <p className="text-3xl font-medium text-muted-foreground">
-                    How can I assist you today?
+                    Hoe kan ik u vandaag van dienst zijn?
                 </p>
             </div>
 

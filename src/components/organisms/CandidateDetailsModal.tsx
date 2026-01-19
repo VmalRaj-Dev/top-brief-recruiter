@@ -1,6 +1,7 @@
 import { Modal } from '@/components/molecules/Modal'
 import type { Candidate } from '@/types'
 import { Check, Mail, Phone, MapPin, Briefcase, Building, GraduationCap, User } from 'lucide-react'
+import { cn, getScoreBadgeStyles } from '@/lib/utils'
 
 interface CandidateDetailsModalProps {
     isOpen: boolean
@@ -15,7 +16,7 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Candidate Details"
+            title="Kandidaatgegevens"
             className="sm:max-w-2xl"
         >
             <div className="space-y-8">
@@ -29,8 +30,8 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
                             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                                 {candidate.full_name}
                                 {candidate.verified && (
-                                    <div className="bg-blue-50 text-blue-600 p-1 rounded-full" title="Verified Candidate">
-                                        <Check className="w-3.5 h-3.5" />
+                                    <div className="bg-green-500 text-white p-1 rounded-full shadow-sm" title="Verified Candidate">
+                                        <Check className="w-3.5 h-3.5" strokeWidth={3} />
                                     </div>
                                 )}
                             </h2>
@@ -48,9 +49,13 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
 
                     {/* Match Score Badge */}
                     <div className="flex flex-col items-end">
-                        <div className="flex flex-col items-center justify-center w-20 h-20 rounded-2xl bg-green-50 border border-green-100 shadow-sm">
-                            <span className="text-2xl font-bold text-green-700">{candidate.match_score}</span>
-                            <span className="text-[10px] uppercase font-bold text-green-600 tracking-wider">Match</span>
+                        <div className={cn(
+                            "flex flex-col items-center justify-center w-24 h-20 rounded-2xl shadow-sm border",
+                            getScoreBadgeStyles(candidate.match_score).bg,
+                            getScoreBadgeStyles(candidate.match_score).border
+                        )}>
+                            <span className={cn("text-2xl font-bold", getScoreBadgeStyles(candidate.match_score).text)}>{candidate.match_score}</span>
+                            <span className={cn("text-[10px] uppercase font-bold tracking-wider", getScoreBadgeStyles(candidate.match_score).text)}>Overeenkomst</span>
                         </div>
                     </div>
                 </div>
@@ -62,7 +67,7 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
                     </div>
                     <h3 className="text-sm font-semibold text-primary-900 uppercase tracking-wider mb-2 flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-primary-500"></span>
-                        AI Analysis
+                        AI Analyse
                     </h3>
                     <p className="text-sm text-gray-700 leading-relaxed relative z-10">
                         {candidate.feedback}
@@ -76,7 +81,7 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
                         <div className="space-y-4">
                             <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2 border-b border-gray-100 pb-2">
                                 <User className="w-4 h-4 text-gray-400" />
-                                Contact & Personal
+                                Contact & Persoonlijk
                             </h3>
                             <div className="space-y-3">
                                 <div className="group flex items-center gap-3 text-sm">
@@ -95,8 +100,8 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
                                         <Phone className="w-4 h-4 text-gray-400 group-hover:text-primary-600" />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-xs text-gray-500">Phone</span>
-                                        <span className="font-medium text-gray-900">{candidate.contact_info.phone || <span className="text-gray-400 italic font-normal">Not available</span>}</span>
+                                        <span className="text-xs text-gray-500">Telefoon</span>
+                                        <span className="font-medium text-gray-900">{candidate.contact_info.phone || <span className="text-gray-400 italic font-normal">Niet beschikbaar</span>}</span>
                                     </div>
                                 </div>
                             </div>
@@ -105,11 +110,11 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
                         <div className="space-y-4">
                             <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2 border-b border-gray-100 pb-2">
                                 <GraduationCap className="w-4 h-4 text-gray-400" />
-                                Education
+                                Onderwijs
                             </h3>
                             <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-600 leading-relaxed border border-gray-100">
                                 {candidate.details?.education ? candidate.details.education : (
-                                    <span className="text-gray-400 italic">No education history provided</span>
+                                    <span className="text-gray-400 italic">Geen onderwijs geschiedenis beschikbaar</span>
                                 )}
                             </div>
                         </div>
@@ -120,7 +125,7 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
                         <div className="space-y-4">
                             <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2 border-b border-gray-100 pb-2">
                                 <Building className="w-4 h-4 text-gray-400" />
-                                Current Role
+                                Huidige Functie
                             </h3>
                             <div className="bg-white rounded-lg border border-gray-100 p-4 shadow-sm space-y-3">
                                 <div className="flex justify-between items-start">
@@ -133,9 +138,9 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
                                     </span>
                                 </div>
                                 <div>
-                                    <p className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">Responsibilities</p>
+                                    <p className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">Verantwoordelijkheden</p>
                                     <p className="text-sm text-gray-600 leading-relaxed">
-                                        {candidate.details?.responsibilities || <span className="text-gray-400 italic">No responsibilities listed</span>}
+                                        {candidate.details?.responsibilities || <span className="text-gray-400 italic">Geen verantwoordelijkheden geregistreerd</span>}
                                     </p>
                                 </div>
                             </div>
@@ -145,7 +150,7 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
                             <div className="space-y-4">
                                 <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2 border-b border-gray-100 pb-2">
                                     <User className="w-4 h-4 text-gray-400" />
-                                    About
+                                    Over
                                 </h3>
                                 <p className="text-sm text-gray-600 leading-relaxed italic border-l-2 border-primary-200 pl-3">
                                     "{candidate.details.self_description}"
