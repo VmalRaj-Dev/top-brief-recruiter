@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowUp } from "lucide-react"
+import { ArrowUp, Loader2 } from "lucide-react"
 import { Button } from "@/components/atoms/Button"
 
 // interface PromptActionButtonProps {
@@ -101,7 +101,11 @@ export function PromptInput({ isLoading }: PromptInputProps) {
                                     onClick={handleSearch}
                                     disabled={isLoading || !input.trim()}
                                 >
-                                    <ArrowUp className="size-6 stroke-white" strokeWidth={1.5} />
+                                    {isLoading ? (
+                                        <Loader2 className="size-6 stroke-white animate-spin" strokeWidth={1.5} />
+                                    ) : (
+                                        <ArrowUp className="size-6 stroke-white" strokeWidth={1.5} />
+                                    )}
                                 </Button>
                             </div>
                         </div>

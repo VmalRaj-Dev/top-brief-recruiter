@@ -9,6 +9,19 @@ interface CandidateDetailsModalProps {
     candidate: Candidate | null
 }
 
+// Helper function to round match_score as a fallback (in case API doesn't return rounded number)
+const getRoundedScore = (score: number | string | undefined): string => {
+    if (score === undefined || score === null || score === '') return '-'
+
+    // Parse string to number if needed
+    const numericScore = typeof score === 'string' ? parseFloat(score) : score
+
+    // Check if parsing resulted in a valid number
+    if (isNaN(numericScore)) return '-'
+
+    return Math.round(numericScore).toString()
+}
+
 export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateDetailsModalProps) {
     if (!candidate) return null
 
@@ -54,7 +67,7 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
                             getScoreBadgeStyles(candidate.match_score).bg,
                             getScoreBadgeStyles(candidate.match_score).border
                         )}>
-                            <span className={cn("text-2xl font-bold", getScoreBadgeStyles(candidate.match_score).text)}>{candidate.match_score}</span>
+                            <span className={cn("text-2xl font-bold", getScoreBadgeStyles(candidate.match_score).text)}>{getRoundedScore(candidate.match_score)}</span>
                             <span className={cn("text-[10px] uppercase font-bold tracking-wider", getScoreBadgeStyles(candidate.match_score).text)}>Overeenkomst</span>
                         </div>
                     </div>
@@ -134,7 +147,7 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
                                         <p className="text-sm text-gray-500">{candidate.company}</p>
                                     </div>
                                     <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-md font-medium">
-                                        {candidate.details?.years_experience || '0'} Exp
+                                        {candidate.details?.years_experience || '0'} jaar exp
                                     </span>
                                 </div>
                                 <div>

@@ -1,11 +1,24 @@
 import { useState } from "react"
-import { ArrowDown, Check, Download } from "lucide-react"
+import { Check, Download } from "lucide-react"
 import { Button } from "@/components/atoms/Button"
 import { useAppStore } from "@/store/useAppStore"
 import { useSearch } from "@/hooks/useSearch"
 import type { Candidate } from "@/types"
 import { CandidateDetailsModal } from "./CandidateDetailsModal"
 import { cn, getScoreBadgeStyles } from "@/lib/utils"
+
+// Helper function to round match_score as a fallback (in case API doesn't return rounded number)
+const getRoundedScore = (score: number | string | undefined): string => {
+    if (score === undefined || score === null || score === '') return '-'
+
+    // Parse string to number if needed
+    const numericScore = typeof score === 'string' ? parseFloat(score) : score
+
+    // Check if parsing resulted in a valid number
+    if (isNaN(numericScore)) return '-'
+
+    return Math.round(numericScore).toString()
+}
 
 export function CandidateTable() {
     const searchQuery = useAppStore((state) => state.searchQuery)
@@ -40,19 +53,62 @@ export function CandidateTable() {
         const selectedCandidates = candidates.filter(c => selectedIds.has(c.email))
         if (selectedCandidates.length === 0) return
 
-        const headers = ['Name', 'Job Title', 'City', 'Experience', 'Score', 'Open To', 'Email', 'Phone', 'Verified']
+        // 'Full Name',
+        //     'Email',
+        //     'Phone',
+        //     'Job Title',
+        //     'Current Function',
+        //     'Company',
+        //     'City',
+        //     'Match Score',
+        //     'Semantic Similarity',
+        //     'Category',
+        //     'Open To Offers',
+        //     'Feedback',
+        //     'Responsibilities',
+        //     'Years Experience',
+        //     'Experience Details',
+        //     'Education',
+        //     'Self Description'
+
+        const headers = [
+            'Volledige naam',
+            'E-mail',
+            'Telefoon',
+            'Functie',
+            'Huidige functie',
+            'Bedrijf',
+            'Stad',
+            'Wedstrijdscore',
+            'Categorie',
+            'Open voor aanbiedingen',
+            'Feedback',
+            'Verantwoordelijkheden',
+            'Jaren ervaring',
+            'Ervaringsdetails',
+            'Opleiding',
+            'Zelfomschrijving'
+        ]
+
         const csvContent = [
             headers.join(','),
             ...selectedCandidates.map(c => [
                 `"${c.full_name || ''}"`,
-                `"${c.job_title || ''}"`,
-                `"${c.city || ''}"`,
-                `"${c.details?.years_experience || ''}"`,
-                `"${c.match_score || ''}"`,
-                `"${c.open_to_offers || ''}"`,
                 `"${c.email || ''}"`,
                 `"${c.contact_info?.phone || ''}"`,
-                `"${c.verified ? 'Yes' : 'No'}"`
+                `"${c.job_title || ''}"`,
+                `"${c.current_function || ''}"`,
+                `"${c.company || ''}"`,
+                `"${c.city || ''}"`,
+                `"${getRoundedScore(c.match_score)}"`,
+                `"${c.category || ''}"`,
+                `"${c.open_to_offers || ''}"`,
+                `"${(c.feedback || '').replace(/"/g, '""')}"`, // Escape quotes
+                `"${(c.details?.responsibilities || '').replace(/"/g, '""')}"`,
+                `"${c.details?.years_experience || ''}"`,
+                `"${(c.details?.experience || '').replace(/"/g, '""')}"`,
+                `"${(c.details?.education || '').replace(/"/g, '""')}"`,
+                `"${(c.details?.self_description || '').replace(/"/g, '""')}"`
             ].join(','))
         ].join('\n')
 
@@ -61,7 +117,7 @@ export function CandidateTable() {
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob)
             link.setAttribute('href', url)
-            link.setAttribute('download', 'candidates.csv')
+            link.setAttribute('download', 'kandidaten.csv')
             link.style.visibility = 'hidden'
             document.body.appendChild(link)
             link.click()
@@ -95,7 +151,7 @@ export function CandidateTable() {
                         </div>
                     )}
                     {/* Header */}
-                    <div className="grid grid-cols-[48px_250px_180px_120px_80px_80px_100px_120px_1fr] gap-4 items-center bg-primary-dark px-6 py-3">
+                    <div className="grid grid-cols-[48px_250px_160px_180px_120px_80px_80px_100px_120px_1fr] gap-4 items-center bg-primary-dark px-6 py-3">
                         <div className="flex items-center justify-center">
                             <div
                                 onClick={toggleSelectAll}
@@ -112,32 +168,26 @@ export function CandidateTable() {
 
                         <div className="flex items-center gap-2 text-white text-base font-medium">
                             <span>Naam</span>
-                            <ArrowDown className="w-4 h-4 text-white" />
                         </div>
 
                         <div className="flex items-center gap-2 text-white text-base font-medium">
-                            <span>Functietitel</span>
-                            <ArrowDown className="w-4 h-4 text-white" />
+                            <span>Huidige positie</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-white text-base font-medium">
+                            <span>Geinteresseerd in</span>
                         </div>
 
                         <div className="flex items-center gap-2 text-white text-base font-medium">
                             <span>Stad</span>
-                            <ArrowDown className="w-4 h-4 text-white" />
                         </div>
 
                         <div className="flex items-center gap-2 text-white text-base font-medium">
-                            <span>Erv.</span>
-                            <ArrowDown className="w-4 h-4 text-white" />
+                            <span>Ervaring</span>
                         </div>
 
                         <div className="flex items-center gap-2 text-white text-base font-medium">
                             <span>Score</span>
-                            <ArrowDown className="w-4 h-4 text-white" />
-                        </div>
-
-                        <div className="flex items-center gap-2 text-white text-base font-medium">
-                            <span>Open voor</span>
-                            <ArrowDown className="w-4 h-4 text-white" />
                         </div>
 
                         <div className="flex items-center text-white text-base font-medium">
@@ -145,23 +195,26 @@ export function CandidateTable() {
                         </div>
 
                         <div className="flex items-center gap-2 text-white text-base font-medium">
+                            <span>Open voor een bod</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-white text-base font-medium">
                             <span>Feedback</span>
-                            <ArrowDown className="w-4 h-4 text-white" />
                         </div>
                     </div>
 
                     {/* Rows */}
                     <div className="flex flex-col">
                         {isLoading ? (
-                            <div className="p-8 text-center text-text-muted">Loading candidates...</div>
+                            <div className="p-8 text-center text-text-muted">De database wordt doorzocht naar talent...</div>
                         ) : candidates.length === 0 ? (
-                            <div className="p-8 text-center text-text-muted">No candidates found</div>
+                            <div className="p-8 text-center text-text-muted">Geen kandidaten gevonden</div>
                         ) : (
                             candidates.map((candidate, index) => (
                                 <div
                                     key={index}
                                     onClick={() => handleRowClick(candidate)}
-                                    className="grid grid-cols-[48px_250px_180px_120px_80px_80px_100px_120px_1fr] gap-4 items-center px-6 py-4 border-b border-stroke last:border-none hover:bg-gray-50 transition-colors cursor-pointer"
+                                    className="grid grid-cols-[48px_250px__160px_180px_120px_80px_80px_100px_120px_1fr] gap-4 items-center px-6 py-4 border-b border-stroke last:border-none hover:bg-gray-50 transition-colors cursor-pointer"
                                 >
                                     <div className="flex items-center justify-center">
                                         <div
@@ -191,6 +244,8 @@ export function CandidateTable() {
                                         </div>
                                     </div>
 
+                                    <span className="text-text-primary text-sm truncate" >{candidate.current_function}</span>
+
                                     <span className="text-text-primary text-sm truncate" title={candidate.job_title}>{candidate.job_title}</span>
 
                                     <span className="text-text-primary text-sm truncate">{candidate.city}</span>
@@ -204,11 +259,9 @@ export function CandidateTable() {
                                             getScoreBadgeStyles(candidate.match_score).border,
                                             getScoreBadgeStyles(candidate.match_score).text
                                         )}>
-                                            {candidate.match_score}
+                                            {getRoundedScore(candidate.match_score)}
                                         </div>
                                     </div>
-
-                                    <span className="text-text-primary text-sm capitalize">{candidate.open_to_offers}</span>
 
                                     <div className="flex items-center">
                                         <Button
@@ -221,6 +274,8 @@ export function CandidateTable() {
                                             Contact
                                         </Button>
                                     </div>
+
+                                    <span className="text-text-primary text-sm capitalize">{candidate.open_to_offers}</span>
 
                                     <div className="w-full">
                                         <p className="text-text-muted text-xs line-clamp-2" title={candidate.feedback}>
