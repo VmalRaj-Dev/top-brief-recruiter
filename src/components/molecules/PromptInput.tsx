@@ -53,7 +53,7 @@ export function PromptInput({ isLoading }: PromptInputProps) {
                         {/* Prompt Input Text */}
                         <textarea
                             className="text-text-primary font-normal text-sm leading-normal min-h-[15px] resize-none outline-none border-none bg-transparent"
-                            placeholder="Een AI-chatbot die het screenen en aannemen van kandidaten automatiseert."
+                            // placeholder="Een AI-chatbot die het screenen en aannemen van kandidaten automatiseert."
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={handleKeyDown}

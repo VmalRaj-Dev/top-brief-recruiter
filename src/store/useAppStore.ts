@@ -31,7 +31,7 @@ export const useAppStore = create<AppState>((set) => ({
     planInfo: {
         tier: 'pro',
         messagesRemaining: 10,
-        limit: 10,
+        limit: 20,
     },
     setPlanInfo: (info) => set({ planInfo: info }),
 

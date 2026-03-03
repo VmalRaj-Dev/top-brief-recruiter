@@ -1,24 +1,14 @@
 import { useState } from "react"
-import { Check, Download } from "lucide-react"
+import { Check, Download, Lock } from "lucide-react"
 import { Button } from "@/components/atoms/Button"
 import { useAppStore } from "@/store/useAppStore"
 import { useSearch } from "@/hooks/useSearch"
 import type { Candidate } from "@/types"
 import { CandidateDetailsModal } from "./CandidateDetailsModal"
-import { cn, getScoreBadgeStyles } from "@/lib/utils"
-
-// Helper function to round match_score as a fallback (in case API doesn't return rounded number)
-const getRoundedScore = (score: number | string | undefined): string => {
-    if (score === undefined || score === null || score === '') return '-'
-
-    // Parse string to number if needed
-    const numericScore = typeof score === 'string' ? parseFloat(score) : score
-
-    // Check if parsing resulted in a valid number
-    if (isNaN(numericScore)) return '-'
-
-    return Math.round(numericScore).toString()
-}
+import { cn, getScoreBadgeStyles, getRoundedScore } from "@/lib/utils"
+import { useAppMode } from "@/hooks/useAppMode"
+import { useSearchParams } from "react-router-dom"
+import { UnlockContactModal } from "../molecules/UnlockContactModal"
 
 export function CandidateTable() {
     const searchQuery = useAppStore((state) => state.searchQuery)
@@ -26,6 +16,39 @@ export function CandidateTable() {
     const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+
+    // Snapshot mode logic
+    const appMode = useAppMode()
+    const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false)
+    const [searchParams] = useSearchParams()
+    // Default to 'pro' if not specified, matching useSearch logic roughly, 
+    // but here we need to know what the search WAS. 
+    // The search result comes from `useSearch`. 
+    // Let's assume the search parameters currently in URL/store dictated the result.
+    const currentSearchPlan = searchParams.get('plan') || useAppStore((state) => state.planInfo.tier)
+
+    const handleContactClick = (e: React.MouseEvent, candidate: Candidate) => {
+        e.stopPropagation()
+
+        if (appMode === 'snapshot') {
+            if (currentSearchPlan === 'starter' || currentSearchPlan === 'free') {
+                // Direct redirect for starter searches
+                window.location.href = "https://www.larton.nl/snapshot-contactgegevens/"
+            } else {
+                // Show modal for 'pro' searches
+                setIsUnlockModalOpen(true)
+            }
+        } else {
+            // Check for starter plan doing a professional search
+            if (currentSearchPlan === 'starter' && candidate.category === 'professional') {
+                setIsUnlockModalOpen(true)
+                return
+            }
+
+            // Default Pro behavior or General category in starter
+            window.location.href = `mailto:${candidate.email}`
+        }
+    }
 
     const toggleSelectAll = () => {
         if (selectedIds.size === candidates.length) {
@@ -126,6 +149,12 @@ export function CandidateTable() {
     }
 
     const handleRowClick = (candidate: Candidate) => {
+        // Check for starter plan doing a professional search
+        if (currentSearchPlan === 'starter' && candidate.category === 'professional') {
+            setIsUnlockModalOpen(true)
+            return
+        }
+
         setSelectedCandidate(candidate)
         setIsModalOpen(true)
     }
@@ -140,18 +169,20 @@ export function CandidateTable() {
                             <span className="text-sm text-primary-600 font-medium">
                                 {selectedIds.size} kandidaten geselecteerd
                             </span>
-                            <Button
-                                onClick={handleDownloadCSV}
-                                variant="outline"
-                                className="h-8 gap-2 border-primary-200 text-primary-600 cursor-pointer hover:bg-primary-100"
-                            >
-                                <Download className="w-4 h-4" />
-                                CSV downloaden
-                            </Button>
+                            {appMode !== 'snapshot' && (
+                                <Button
+                                    onClick={handleDownloadCSV}
+                                    variant="outline"
+                                    className="h-8 gap-2 border-primary-200 text-primary-600 cursor-pointer hover:bg-primary-100"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    CSV downloaden
+                                </Button>
+                            )}
                         </div>
                     )}
                     {/* Header */}
-                    <div className="grid grid-cols-[48px_250px_160px_180px_120px_80px_80px_100px_120px_1fr] gap-4 items-center bg-primary-dark px-6 py-3">
+                    <div className="grid grid-cols-[48px_250px_160px_180px_120px_80px_80px_140px_120px_1fr] gap-4 items-center bg-primary-dark px-6 py-3">
                         <div className="flex items-center justify-center">
                             <div
                                 onClick={toggleSelectAll}
@@ -214,7 +245,7 @@ export function CandidateTable() {
                                 <div
                                     key={index}
                                     onClick={() => handleRowClick(candidate)}
-                                    className="grid grid-cols-[48px_250px__160px_180px_120px_80px_80px_100px_120px_1fr] gap-4 items-center px-6 py-4 border-b border-stroke last:border-none hover:bg-gray-50 transition-colors cursor-pointer"
+                                    className="grid grid-cols-[48px_250px_160px_180px_120px_80px_80px_140px_120px_1fr] gap-4 items-center px-6 py-4 border-b border-stroke last:border-none hover:bg-gray-50 transition-colors cursor-pointer"
                                 >
                                     <div className="flex items-center justify-center">
                                         <div
@@ -265,13 +296,20 @@ export function CandidateTable() {
 
                                     <div className="flex items-center">
                                         <Button
-                                            className="px-4 py-2 h-8 rounded-md text-xs font-medium bg-primary-dark text-white"
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                window.location.href = `mailto:${candidate.email}`
-                                            }}
+                                            className={cn(
+                                                "px-4 py-2 h-8 rounded-md text-xs font-medium text-white transition-colors",
+                                                appMode === 'snapshot' ? "bg-amber-500 hover:bg-amber-600" : "bg-primary-dark"
+                                            )}
+                                            onClick={(e) => handleContactClick(e, candidate)}
                                         >
-                                            Contact
+                                            {appMode === 'snapshot' ? (
+                                                <span className="flex items-center gap-1.5">
+                                                    <Lock className="w-3 h-3" />
+                                                    Ontgrendel
+                                                </span>
+                                            ) : (
+                                                "Contact"
+                                            )}
                                         </Button>
                                     </div>
 
@@ -293,6 +331,11 @@ export function CandidateTable() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 candidate={selectedCandidate}
+            />
+
+            <UnlockContactModal
+                isOpen={isUnlockModalOpen}
+                onClose={() => setIsUnlockModalOpen(false)}
             />
         </div>
     )

@@ -1,7 +1,9 @@
 import { Modal } from '@/components/molecules/Modal'
 import type { Candidate } from '@/types'
 import { Check, Mail, Phone, MapPin, Briefcase, Building, GraduationCap, User } from 'lucide-react'
-import { cn, getScoreBadgeStyles } from '@/lib/utils'
+import { cn, getScoreBadgeStyles, getRoundedScore } from '@/lib/utils'
+import { useAppMode } from '@/hooks/useAppMode'
+import { maskEmail, maskPhone } from '@/lib/masking'
 
 interface CandidateDetailsModalProps {
     isOpen: boolean
@@ -9,20 +11,10 @@ interface CandidateDetailsModalProps {
     candidate: Candidate | null
 }
 
-// Helper function to round match_score as a fallback (in case API doesn't return rounded number)
-const getRoundedScore = (score: number | string | undefined): string => {
-    if (score === undefined || score === null || score === '') return '-'
-
-    // Parse string to number if needed
-    const numericScore = typeof score === 'string' ? parseFloat(score) : score
-
-    // Check if parsing resulted in a valid number
-    if (isNaN(numericScore)) return '-'
-
-    return Math.round(numericScore).toString()
-}
 
 export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateDetailsModalProps) {
+    const appMode = useAppMode()
+
     if (!candidate) return null
 
     return (
@@ -32,7 +24,7 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
             title="Kandidaatgegevens"
             className="sm:max-w-2xl"
         >
-            <div className="space-y-8">
+            <div className="space-y-8 max-h-[70vh] overflow-y-auto pr-2">
                 {/* Header Section */}
                 <div className="flex items-start justify-between">
                     <div className="flex gap-5">
@@ -103,8 +95,14 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-xs text-gray-500">Email</span>
-                                        <a href={`mailto:${candidate.email}`} className="font-medium text-gray-900 hover:text-primary-600 transition-colors">
-                                            {candidate.email}
+                                        <a
+                                            href={appMode === 'snapshot' ? undefined : `mailto:${candidate.email}`}
+                                            className={cn(
+                                                "font-medium text-gray-900",
+                                                appMode !== 'snapshot' && "hover:text-primary-600 transition-colors"
+                                            )}
+                                        >
+                                            {appMode === 'snapshot' ? maskEmail(candidate.email) : candidate.email}
                                         </a>
                                     </div>
                                 </div>
@@ -114,7 +112,12 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-xs text-gray-500">Telefoon</span>
-                                        <span className="font-medium text-gray-900">{candidate.contact_info.phone || <span className="text-gray-400 italic font-normal">Niet beschikbaar</span>}</span>
+                                        <span className="font-medium text-gray-900">
+                                            {appMode === 'snapshot'
+                                                ? maskPhone(candidate.contact_info.phone)
+                                                : (candidate.contact_info.phone || <span className="text-gray-400 italic font-normal">Niet beschikbaar</span>)
+                                            }
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -131,6 +134,17 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
                                 )}
                             </div>
                         </div>
+                        <div className='space-y-4'>
+                            <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2 border-b border-gray-100 pb-2">
+                                <Briefcase className="w-4 h-4 text-gray-400" />
+                                Ervaring Opgedaan
+                            </h3>
+                            <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-600 leading-relaxed border border-gray-100">
+                                {candidate.details?.experience ? candidate.details.experience : (
+                                    <span className="text-gray-400 italic">Geen ervaring opgedaan beschikbaar</span>
+                                )}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Right Column */}
@@ -143,11 +157,17 @@ export function CandidateDetailsModal({ isOpen, onClose, candidate }: CandidateD
                             <div className="bg-white rounded-lg border border-gray-100 p-4 shadow-sm space-y-3">
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <p className="font-semibold text-gray-900">{candidate.current_function}</p>
-                                        <p className="text-sm text-gray-500">{candidate.company}</p>
+                                        {(!candidate.current_function && !candidate.company) ? (
+                                            <p className="text-gray-500 italic">Ik heb momenteel geen werk</p>
+                                        ) : (
+                                            <>
+                                                <p className="font-semibold text-gray-900">{candidate.current_function}</p>
+                                                <p className="text-sm text-gray-500">{candidate.company}</p>
+                                            </>
+                                        )}
                                     </div>
                                     <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-md font-medium">
-                                        {candidate.details?.years_experience || '0'} jaar exp
+                                        {candidate.details?.years_experience || '0'} jaar ervaring
                                     </span>
                                 </div>
                                 <div>

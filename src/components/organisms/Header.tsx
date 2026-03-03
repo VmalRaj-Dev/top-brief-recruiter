@@ -4,9 +4,13 @@ import logo from "@/assets/logo.svg"
 
 import { Upload } from "lucide-react"
 import { UploadModal } from "./UploadModal"
+import { useCredits } from "@/hooks/useCredits"
 
 export function Header() {
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
+    const { data: creditsData } = useCredits()
+
+    const displayCredits = creditsData?.balance ?? creditsData?.credits ?? 0;
 
     return (
         <header className="sticky top-0 left-0 right-0 px-6 py-3 pt-6 flex justify-center items-center z-50 bg-background border-b border-gray-100">
@@ -18,12 +22,21 @@ export function Header() {
 
                 {/* Right: Upgrade Button + User Profile */}
                 <div className="flex items-center gap-7">
-                    {/* Upgrade Button */}
-                    <Button
-                        className="px-3 py-2 h-9 rounded-lg text-sm font-medium bg-primary-dark text-white"
-                    >
-                        Upgrade
-                    </Button>
+                    {/* Credits & Upgrade Button */}
+                    <div className="flex items-center gap-3">
+                        {creditsData !== undefined && (
+                            <div className="flex items-center px-3 py-1.5 rounded-lg border border-gray-100 bg-gray-50/50">
+                                <span className="text-sm font-medium text-text-secondary">
+                                    {displayCredits} Credits
+                                </span>
+                            </div>
+                        )}
+                        <Button
+                            className="px-3 py-2 h-9 rounded-lg text-sm font-medium bg-primary-dark text-white"
+                        >
+                            Upgrade
+                        </Button>
+                    </div>
 
                     <Button
                         size="icon"

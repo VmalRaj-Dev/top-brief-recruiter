@@ -28,3 +28,15 @@ export function getScoreBadgeStyles(score: string | number) {
   if (numericScore >= 35) return { bg: "bg-orange-100", border: "border-orange-200", text: "text-orange-700" }
   return { bg: "bg-red-100", border: "border-red-200", text: "text-red-700" }
 }
+
+export const getRoundedScore = (score: number | string | undefined): string => {
+  if (score === undefined || score === null || score === '') return '-'
+
+  // Parse string to number if needed
+  const numericScore = typeof score === 'string' ? parseFloat(score) : score
+
+  // Check if parsing resulted in a valid number
+  if (isNaN(numericScore)) return '-'
+
+  return `${Math.round(numericScore)}%`
+}

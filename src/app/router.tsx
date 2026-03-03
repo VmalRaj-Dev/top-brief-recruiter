@@ -9,6 +9,7 @@ export function AppRouter() {
             <Routes>
                 <Route element={<AppLayout />}>
                     <Route path="/" element={<ChatPage />} />
+                    <Route path="/snapshot" element={<ChatPage />} />
                     <Route path="/admin" element={<AdminPage />} />
                 </Route>
             </Routes>
