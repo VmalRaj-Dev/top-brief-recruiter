@@ -5,12 +5,15 @@ import { useSearch } from "@/hooks/useSearch"
 
 export function ChatPanel() {
     const searchQuery = useAppStore((state) => state.searchQuery)
-    const { isLoading } = useSearch(searchQuery)
+    const { data: candidates = [], isLoading } = useSearch(searchQuery)
 
     return (
         <div className="flex-1 flex flex-col items-center p-6 bg-transparent">
             <PromptInput isLoading={isLoading} />
-            {searchQuery && !isLoading && <CandidateTable />}
+            {searchQuery && !isLoading && (
+                <CandidateTable candidates={candidates} />
+            )}
         </div>
     )
 }
+

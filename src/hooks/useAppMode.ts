@@ -1,14 +1,19 @@
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 
-export type AppMode = 'pro' | 'snapshot' | 'snapshot_paid'
+export type AppMode = 'pro' | 'snapshot' | 'trial' | 'starter'
 
 export function useAppMode(): AppMode {
     const location = useLocation()
-    if (location.pathname.startsWith('/snapshot_paid')) {
-        return 'snapshot_paid'
-    }
+    const [searchParams] = useSearchParams()
+    const plan = searchParams.get('plan')
     if (location.pathname.startsWith('/snapshot')) {
         return 'snapshot'
+    }
+    if (plan === 'trial') {
+        return 'trial'
+    }
+    if (plan === 'starter') {
+        return 'starter'
     }
     return 'pro'
 }

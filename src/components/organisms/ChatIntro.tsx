@@ -1,13 +1,6 @@
-import { Button } from "../atoms/Button";
-import { useAppMode } from "@/hooks/useAppMode";
 import chatIntroIcon from "@/assets/Group 8.svg";
 
-import { useCredits } from "@/hooks/useCredits";
-
 export function ChatIntro() {
-    const appMode = useAppMode();
-    const { data: creditsData } = useCredits()
-    const displayCredits = creditsData?.credits_balance ?? 0;
 
     return (
         <div className="flex flex-col items-center text-center gap-4 py-10">
@@ -28,21 +21,14 @@ export function ChatIntro() {
                     Hoe kan ik je vandaag van dienst zijn?
                 </p>
                 <div className="flex items-center gap-3">
-                    {creditsData !== undefined && (
-                        <div className="flex items-center px-3 py-1.5 rounded-lg border border-gray-100 bg-gray-50/50">
-                            <span className="text-sm font-medium text-text-secondary">
-                                {displayCredits} Credits
-                            </span>
-                        </div>
-                    )}
-                    {appMode === 'snapshot' && (
+                    {/* {appMode === 'snapshot' && (
                         <Button
                             className="px-3 py-2 h-9 rounded-lg text-sm font-medium bg-primary-dark text-white"
                             onClick={() => window.location.href = "https://www.larton.nl/pro/"}
                         >
                             Upgrade
                         </Button>
-                    )}
+                    )} */}
                 </div>
             </div>
 

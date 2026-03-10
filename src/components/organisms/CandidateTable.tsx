@@ -1,18 +1,17 @@
 import { useState } from "react"
 import { Check, Download, Lock } from "lucide-react"
 import { Button } from "@/components/atoms/Button"
-import { useAppStore } from "@/store/useAppStore"
-import { useSearch } from "@/hooks/useSearch"
 import type { Candidate } from "@/types"
 import { CandidateDetailsModal } from "./CandidateDetailsModal"
 import { cn, getScoreBadgeStyles, getRoundedScore } from "@/lib/utils"
 import { useAppMode } from "@/hooks/useAppMode"
-import { useSearchParams } from "react-router-dom"
 import { UnlockContactModal } from "../molecules/UnlockContactModal"
 
-export function CandidateTable() {
-    const searchQuery = useAppStore((state) => state.searchQuery)
-    const { data: candidates = [], isLoading } = useSearch(searchQuery)
+interface CandidateTableProps {
+    candidates: Candidate[]
+}
+
+export function CandidateTable({ candidates }: CandidateTableProps) {
     const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -20,34 +19,40 @@ export function CandidateTable() {
     // Snapshot mode logic
     const appMode = useAppMode()
     const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false)
-    const [searchParams] = useSearchParams()
-    // Default to 'pro' if not specified, matching useSearch logic roughly, 
-    // but here we need to know what the search WAS. 
-    // The search result comes from `useSearch`. 
-    // Let's assume the search parameters currently in URL/store dictated the result.
-    const currentSearchPlan = searchParams.get('plan') || useAppStore((state) => state.planInfo.tier)
 
     const handleContactClick = (e: React.MouseEvent, candidate: Candidate) => {
         e.stopPropagation()
 
         if (appMode === 'snapshot') {
-            if (currentSearchPlan === 'starter' || currentSearchPlan === 'free') {
+            if (candidate.category === 'general') {
                 // Direct redirect for starter searches
                 window.location.href = "https://www.larton.nl/snapshot-contactgegevens/"
-            } else {
-                // Show modal for 'pro' searches
-                setIsUnlockModalOpen(true)
-            }
-        } else {
-            // Check for starter plan doing a professional search
-            if (currentSearchPlan === 'starter' && candidate.category === 'professional') {
-                setIsUnlockModalOpen(true)
                 return
             }
-
-            // Default Pro behavior or General category in starter
-            window.location.href = `mailto:${candidate.email}`
+            // Show modal for 'pro' searches
+            setIsUnlockModalOpen(true)
+            return
         }
+        if (appMode === 'trial') {
+            if (candidate.category === 'general') {
+                // Direct redirect for starter searches
+                window.location.href = " https://www.larton.nl/"
+                return
+            }
+            setIsUnlockModalOpen(true)
+            return
+        }
+        if (appMode === 'starter') {
+            if (candidate.category === 'professional') {
+                window.location.href = " https://www.larton.nl/pro-plan/"
+                return
+            }
+            window.location.href = `mailto:${candidate.email}`
+            return
+        }
+
+        // Default Pro behavior or General category in starter
+        window.location.href = `mailto:${candidate.email}`
     }
 
     const toggleSelectAll = () => {
@@ -149,12 +154,6 @@ export function CandidateTable() {
     }
 
     const handleRowClick = (candidate: Candidate) => {
-        // Check for starter plan doing a professional search
-        if (currentSearchPlan === 'starter' && candidate.category === 'professional') {
-            setIsUnlockModalOpen(true)
-            return
-        }
-
         setSelectedCandidate(candidate)
         setIsModalOpen(true)
     }
@@ -182,7 +181,7 @@ export function CandidateTable() {
                         </div>
                     )}
                     {/* Header */}
-                    <div className="grid grid-cols-[48px_250px_160px_180px_120px_80px_80px_140px_120px_1fr] gap-4 items-center bg-primary-dark px-6 py-3">
+                    <div className="grid grid-cols-[40px_140px_140px_140px_100px_65px_65px_110px_100px_1fr] gap-2 items-center bg-primary-dark px-4 py-3">
                         <div className="flex items-center justify-center">
                             <div
                                 onClick={toggleSelectAll}
@@ -226,7 +225,7 @@ export function CandidateTable() {
                         </div>
 
                         <div className="flex items-center gap-2 text-white text-base font-medium">
-                            <span>Open voor een bod</span>
+                            <span>Open voor aanbod baan</span>
                         </div>
 
                         <div className="flex items-center gap-2 text-white text-base font-medium">
@@ -236,16 +235,14 @@ export function CandidateTable() {
 
                     {/* Rows */}
                     <div className="flex flex-col">
-                        {isLoading ? (
-                            <div className="p-8 text-center text-text-muted">De database wordt doorzocht naar talent...</div>
-                        ) : candidates.length === 0 ? (
+                        {candidates.length === 0 ? (
                             <div className="p-8 text-center text-text-muted">Geen kandidaten gevonden</div>
                         ) : (
                             candidates.map((candidate, index) => (
                                 <div
                                     key={index}
                                     onClick={() => handleRowClick(candidate)}
-                                    className="grid grid-cols-[48px_250px_160px_180px_120px_80px_80px_140px_120px_1fr] gap-4 items-center px-6 py-4 border-b border-stroke last:border-none hover:bg-gray-50 transition-colors cursor-pointer"
+                                    className="grid grid-cols-[40px_140px_140px_140px_100px_65px_65px_110px_100px_1fr] gap-2 items-center px-4 py-4 border-b border-stroke last:border-none hover:bg-gray-50 transition-colors cursor-pointer"
                                 >
                                     <div className="flex items-center justify-center">
                                         <div
@@ -266,12 +263,12 @@ export function CandidateTable() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-2 w-full overflow-hidden">
                                         <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-medium text-xs shrink-0">
                                             {candidate.full_name?.charAt(0).toUpperCase()}
                                         </div>
-                                        <div className="flex flex-col justify-center">
-                                            <span className="text-text-primary text-sm font-medium truncate" title={candidate.full_name}>{candidate.full_name}</span>
+                                        <div className="min-w-0 flex-1 overflow-hidden">
+                                            <span className="block text-text-primary text-sm font-medium truncate" title={candidate.full_name}>{candidate.full_name}</span>
                                         </div>
                                     </div>
 
@@ -297,12 +294,12 @@ export function CandidateTable() {
                                     <div className="flex items-center">
                                         <Button
                                             className={cn(
-                                                "px-4 py-2 h-8 rounded-md text-xs font-medium text-white transition-colors",
-                                                appMode === 'snapshot' ? "bg-amber-500 hover:bg-amber-600" : "bg-primary-dark"
+                                                "px-4 py-2 w-24 h-8 rounded-md text-xs font-medium text-white transition-colors",
+                                                appMode === 'snapshot' || (appMode === 'starter' && candidate.category === 'professional') ? "bg-amber-500 hover:bg-amber-600" : "bg-primary-dark"
                                             )}
                                             onClick={(e) => handleContactClick(e, candidate)}
                                         >
-                                            {appMode === 'snapshot' ? (
+                                            {appMode === 'snapshot' || (appMode === 'starter' && candidate.category === 'professional') ? (
                                                 <span className="flex items-center gap-1.5">
                                                     <Lock className="w-3 h-3" />
                                                     Ontgrendel

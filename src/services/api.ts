@@ -9,7 +9,12 @@ const getBearerToken = () => {
 }
 
 const triggerBalanceRefetch = (endpoint: string) => {
-    if (!endpoint.includes('/credits/balance')) {
+    // Only invalidate balance for endpoints that actually consume credits.
+    // Skip the balance endpoint itself (avoid self-loop) and snapshot/masked
+    // endpoints (those don't cost credits).
+    const isSelf = endpoint.includes('/credits/balance')
+    const isSnapshot = endpoint.includes('/masked')
+    if (!isSelf && !isSnapshot) {
         queryClient.invalidateQueries({ queryKey: ['credits_balance'] })
     }
 }

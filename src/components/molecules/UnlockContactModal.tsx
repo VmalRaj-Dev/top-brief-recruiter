@@ -1,6 +1,7 @@
 import { Modal } from '@/components/molecules/Modal'
 import { Button } from '@/components/atoms/Button'
 import { Lock } from 'lucide-react'
+import { useAppMode } from '@/hooks/useAppMode'
 
 interface UnlockContactModalProps {
     isOpen: boolean
@@ -8,6 +9,7 @@ interface UnlockContactModalProps {
 }
 
 export function UnlockContactModal({ isOpen, onClose }: UnlockContactModalProps) {
+    const appMode = useAppMode()
     return (
         <Modal
             isOpen={isOpen}
@@ -31,7 +33,14 @@ export function UnlockContactModal({ isOpen, onClose }: UnlockContactModalProps)
                         <Button
                             variant="outline"
                             className="flex-1 justify-center h-auto py-2 whitespace-normal text-center text-sm font-medium border-primary-200 hover:bg-primary-50 hover:text-primary-700"
-                            onClick={() => window.location.href = "https://www.larton.nl/snapshot-contactgegevens/"}
+                            onClick={() => {
+                                if (appMode === "trial") {
+                                    window.location.href = "http://larton.nl"
+                                    return
+                                }
+                                window.location.href = "https://www.larton.nl/snapshot-contactgegevens/"
+                            }
+                            }
                         >
                             Ontgrendel alleen deze selectie
                         </Button>

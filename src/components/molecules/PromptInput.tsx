@@ -23,12 +23,16 @@ import { Button } from "@/components/atoms/Button"
 // }
 
 import { useAppStore } from "@/store/useAppStore"
+import { useCredits } from '@/hooks/useCredits'
 
 export interface PromptInputProps {
     isLoading?: boolean
 }
 
 export function PromptInput({ isLoading }: PromptInputProps) {
+    const { data: creditsData } = useCredits()
+    const displayCredits = creditsData?.credits_balance ?? 0;
+
     const [input, setInput] = React.useState("")
     const setSearchQuery = useAppStore((state) => state.setSearchQuery)
 
@@ -93,6 +97,13 @@ export function PromptInput({ isLoading }: PromptInputProps) {
                                 >
                                     <img src={micBlack} alt="Mic" className="size-6" />
                                 </Button> */}
+                                {creditsData !== undefined && (
+                                    <div className="flex items-center px-3 py-1.5 rounded-lg border border-gray-100 bg-gray-50/50">
+                                        <span className="text-sm font-medium text-text-secondary">
+                                            {displayCredits} zoekopdrachten over
+                                        </span>
+                                    </div>
+                                )}
 
                                 {/* Send Button */}
                                 <Button
